@@ -5,7 +5,7 @@ import ReceiveMessage from '../pages/ReceiveMessage';
 const Router = () => {
     return (
         <Routes>
-            <Route path="/*" element={<SendMessages />} />
+            <Route path="/" element={<SendMessages />} />
             <Route path="/message" element={<SendMessages />} />
             <Route path="/receiver" element={<ReceiveMessage />} />
         </Routes>
