@@ -1,124 +1,106 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+declare global {
+    interface Window {
+        responsiveVoice: {
+            speak: (text: string, voice: string, options?: any) => void;
+            cancel: () => void;
+            isPlaying: () => boolean;
+            getVoices: () => string[];
+            setDefaultVoice: (voice: string) => void;
+        };
+    }
+}
+
 export const useSpeech = (initialText = '') => {
     const [text, setText] = useState(initialText);
     const [isPlaying, setIsPlaying] = useState(false);
-    const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
-    const isMobileOrTV = useRef(false);
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const scriptRef = useRef<HTMLScriptElement | null>(null);
 
-    // Detectar si es un dispositivo móvil o TV
+    // Cargar la biblioteca ResponsiveVoice
     useEffect(() => {
-        const userAgent = navigator.userAgent.toLowerCase();
-        isMobileOrTV.current =
-            /iphone|ipad|ipod|android|mobile|tv|smart-tv|smarttv|tizen|webos|netcast/i.test(
-                userAgent,
-            );
+        if (typeof window !== 'undefined' && !window.responsiveVoice && !scriptRef.current) {
+            const script = document.createElement('script');
+            script.src = 'https://code.responsivevoice.org/responsivevoice.js?key=FTE7HVpn';
+            script.async = true;
+            script.onload = () => {
+                setIsLoaded(true);
+                if (window.responsiveVoice) {
+                    // Establecer la voz por defecto en español
+                    window.responsiveVoice.setDefaultVoice('Spanish Female');
+                }
+            };
+            script.onerror = () => {
+                setError('No se pudo cargar la biblioteca de síntesis de voz');
+            };
+
+            document.body.appendChild(script);
+            scriptRef.current = script;
+
+            return () => {
+                if (scriptRef.current && document.body.contains(scriptRef.current)) {
+                    document.body.removeChild(scriptRef.current);
+                }
+            };
+        } else if (window.responsiveVoice) {
+            setIsLoaded(true);
+        }
     }, []);
 
     const updateText = useCallback((newText: string) => {
         setText(newText);
     }, []);
 
-    // Solución para el problema de los tiempos de espera en móviles
-    const handleMobileSpeech = useCallback(() => {
-        // Dividir el texto en fragmentos pequeños si es muy largo
-        const textChunks = text.match(/.{1,150}(?:\s|$)/g) || [];
-        let currentChunk = 0;
-
-        const speakNextChunk = () => {
-            if (currentChunk < textChunks.length) {
-                const chunkUtterance = new SpeechSynthesisUtterance(textChunks[currentChunk]);
-                chunkUtterance.lang = 'es-ES';
-                chunkUtterance.rate = 1;
-                chunkUtterance.pitch = 1;
-                chunkUtterance.volume = 1;
-
-                if (currentChunk === 0) {
-                    chunkUtterance.onstart = () => setIsPlaying(true);
-                }
-
-                if (currentChunk === textChunks.length - 1) {
-                    chunkUtterance.onend = () => setIsPlaying(false);
-                } else {
-                    chunkUtterance.onend = speakNextChunk;
-                }
-
-                currentChunk++;
-                speechSynthesis.speak(chunkUtterance);
-            }
-        };
-
-        speakNextChunk();
-    }, [text]);
-
-    // Función para verificar si la síntesis de voz está disponible
-    const isSpeechSynthesisAvailable = useCallback(() => {
-        return typeof window !== 'undefined' && 'speechSynthesis' in window;
-    }, []);
-
     const play = useCallback(() => {
-        if (!text || !isSpeechSynthesisAvailable()) return;
+        if (!isLoaded || !text || !window.responsiveVoice) return;
 
-        speechSynthesis.cancel();
+        // Detener cualquier reproducción previa
+        window.responsiveVoice.cancel();
 
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'es-ES';
-        utterance.rate = 1;
-        utterance.pitch = 1;
-        utterance.volume = 1;
-
-        utterance.onstart = () => setIsPlaying(true);
-        utterance.onend = () => setIsPlaying(false);
-        utterance.onerror = event => {
-            console.error('Error de síntesis de voz:', event);
-            setIsPlaying(false);
-        };
-
-        utteranceRef.current = utterance;
-
-        if (isMobileOrTV.current) {
-            // Usar la solución específica para móviles
-            handleMobileSpeech();
-        } else {
-            // En desktop funciona bien la implementación normal
-            speechSynthesis.speak(utterance);
-        }
-
-        // Solución para el bug de Chrome que pausa la síntesis después de 15 segundos
-        if ('chrome' in window) {
-            const intervalId = setInterval(() => {
-                if (speechSynthesis.speaking && !speechSynthesis.paused) {
-                    speechSynthesis.pause();
-                    speechSynthesis.resume();
-                } else {
-                    clearInterval(intervalId);
-                }
-            }, 10000);
-        }
-    }, [text, handleMobileSpeech, isSpeechSynthesisAvailable]);
+        // Reproducir el texto con las opciones de configuración
+        window.responsiveVoice.speak(text, 'Spanish Female', {
+            pitch: 1,
+            rate: 1,
+            volume: 1,
+            onstart: () => setIsPlaying(true),
+            onend: () => setIsPlaying(false),
+            onerror: (error: any) => {
+                console.error('Error de síntesis de voz:', error);
+                setIsPlaying(false);
+                setError('Error al reproducir el audio');
+            },
+        });
+    }, [text, isLoaded]);
 
     const stop = useCallback(() => {
-        if (isSpeechSynthesisAvailable()) {
-            speechSynthesis.cancel();
+        if (isLoaded && window.responsiveVoice) {
+            window.responsiveVoice.cancel();
             setIsPlaying(false);
         }
-    }, [isSpeechSynthesisAvailable]);
+    }, [isLoaded]);
 
-    // Limpiar al desmontar
+    // Verificar periódicamente si la reproducción ha terminado (por si el evento onend falla)
     useEffect(() => {
-        return () => {
-            if (isSpeechSynthesisAvailable()) {
-                speechSynthesis.cancel();
-            }
-        };
-    }, [isSpeechSynthesisAvailable]);
+        if (isPlaying && isLoaded && window.responsiveVoice) {
+            const interval = setInterval(() => {
+                if (!window.responsiveVoice.isPlaying()) {
+                    setIsPlaying(false);
+                }
+            }, 500);
+
+            return () => clearInterval(interval);
+        }
+    }, [isPlaying, isLoaded]);
 
     return {
         text,
         isPlaying,
+        isLoaded,
+        error,
         updateText,
         play,
         stop,
-        isSupported: isSpeechSynthesisAvailable(),
     };
 };
