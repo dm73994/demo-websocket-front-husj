@@ -53,3 +53,4 @@ export default tseslint.config({
 })
 ```
 # demo-websocket-front-husj
+# digiturno-imagenes-frontend
