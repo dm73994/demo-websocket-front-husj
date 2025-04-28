@@ -8,4 +8,11 @@ export default defineConfig({
         outDir: 'dist',
         assetsDir: 'assets',
     },
+    server: {
+        host: '0.0.0.0', // para que acepte conexiones externas
+        port: 3000,
+        allowedHosts: ['.loca.lt', 'localhost'],
+        https: false
+      }
+      
 });

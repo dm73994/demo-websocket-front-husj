@@ -1,68 +1,314 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
 }
 
-body {
+
+.app-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
+  padding: 0;
+  text-align: center;
+  background-color: #f4f6f8;
   min-height: 100vh;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+.app-header {
+  background-color: #9aa8a8;
+  color: #fff;
+  padding: 10px 10px;
+  margin-bottom: 20px;
+  text-align: center;
+  
+  
+
 }
 
-button {
+.app-header h1 {
+  font-size: 1.3rem; 
+  margin: 0;
+}
+.logo {
+  height: 70px;
+  margin-bottom: 10px;
+}
+
+.app-nav {
+  margin-bottom: 20px;
+}
+
+.nav-link {
+  text-decoration: none;
+  color: #003366;
+  background-color: #e1e8ed;
+  padding: 10px 15px;
+  margin: 0 5px;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.nav-link:hover {
+  background-color: #cdd6e0;
+}
+.turno-container {
+  width: 90%;
+  max-width: 500px;
+  background: #f7f9fc;
+  padding: 20px;
+  margin: 20px auto;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.titulo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #003366;
+}
+
+.input-group {
+  margin-top: 15px;
+}
+
+.input-field {
+  width: 90%;
+  padding: 10px;
   border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border: 2px solid #007BFF;
+  font-size: 16px;
+  text-align: center;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+.input-field:focus {
+  border-color: #0056b3;
+  outline: none;
+}
+
+.info {
+  color: #007BFF;
+  font-size: 14px;
+}
+
+.error {
+  color: red;
+  font-size: 14px;
+}
+
+.paciente-info {
+  background: #e3f2fd;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.bienvenida {
+  font-size: 18px;
+  font-weight: bold;
+  color: #004085;
+}
+
+.nombre {
+  color: #007BFF;
+  font-weight: bold;
+}
+
+.select-field {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #007BFF;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.select-field:hover {
+  border-color: #0056b3;
+}
+
+.action-button {
+  background: #53bd6c;
+  color: white;
+  font-size: 16px;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  margin-top: 15px;
+  width: 100%;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.action-button:hover {
+  background: #c0dbc6;
+}
+/* Fondo con degradado más limpio */
+body {
+  background: linear-gradient(to bottom, #c4a9a2, #0d434d);
+  color: white;
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+/* Contenedor principal */
+.pantalla-turnos {
+  width: 100%;
+}
+
+/* Turno actual */
+.turno-numero {
+  font-size: 80px;
+  font-weight: bold;
+  color: yellow;
+  display: block;
+}
+
+/* Nombre del paciente */
+.turno-nombre {
+  font-size: 60px;
+  font-weight: bold;
+  color: white;
+  display: block;
+  margin-top: 15px;
+}
+
+
+.mensaje-sin-turno {
+  font-size: 20px;
+  font-weight: bold;
+  color: black;
+  margin-top: 20px;
+}
+
+
+.joselin {
+  width: 280px; 
+  height: auto;
+  margin-top: 200px;
+  mix-blend-mode: multiply; 
+}
+
+.facturacion-container {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 20px auto;
+  max-width: 80vw;
+  max-height: 80vh;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+
+.facturacion-container h2 {
+  color: #003366;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+/* Contenedor principal */
+.tabla-container {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+/* Contenedor con scroll */
+.tabla-wrapper {
+  max-height: 80vh; /* Altura máxima de la tabla */
+  overflow-y: auto; /* Scroll vertical */
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabla de pacientes */
+.tabla-pacientes {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+}
+
+/* Encabezados fijos */
+.tabla-pacientes thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.tabla-pacientes th {
+  background: linear-gradient(90deg, #003366, #005bb5);
+  color: white;
+  font-weight: bold;
+  padding: 14px;
+  text-transform: uppercase;
+}
+
+.tabla-pacientes td {
+  padding: 14px;
+  text-align: center;
+  border-bottom: 1px solid #ddd;
+  font-size: 16px;
+}
+
+/* Filas alternas */
+.tabla-pacientes tr:nth-child(even) {
+  background: #f8f9fa;
+}
+/* Botones */
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+  margin: 5px;
+  color: white;
+}
+
+/* Botón de llamar */
+.btn.llamar {
+  background: #28a745;
+}
+
+.btn.llamar:hover {
+  background: #218838;
+  transform: scale(1.05);
+}
+
+/* Botón de eliminar */
+.btn.eliminar {
+  background: #dc3545;
+}
+
+.btn.eliminar:hover {
+  background: #c82333;
+  transform: scale(1.05);
+}
+
+
+.sin-pacientes {
+  font-size: 18px;
+  font-weight: bold;
+  color: #555;
+  padding: 20px;
 }

@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 declare global {
     interface Window {
         responsiveVoice: {
-            speak: (text: string, voice: string, options?: any) => void;
+            speak: (text: string, voice: string, options?: unknown) => void;
             cancel: () => void;
             isPlaying: () => boolean;
             getVoices: () => string[];
@@ -53,20 +53,20 @@ export const useSpeech = (initialText = '') => {
         setText(newText);
     }, []);
 
-    const play = useCallback(() => {
+    const play = useCallback((text: string) => {
         if (!isLoaded || !text || !window.responsiveVoice) return;
 
         // Detener cualquier reproducción previa
         window.responsiveVoice.cancel();
 
         // Reproducir el texto con las opciones de configuración
-        window.responsiveVoice.speak(text, 'Spanish Female', {
+        window.responsiveVoice.speak(text.toLowerCase(), 'Spanish Female', {
             pitch: 1,
             rate: 1,
             volume: 1,
             onstart: () => setIsPlaying(true),
             onend: () => setIsPlaying(false),
-            onerror: (error: any) => {
+            onerror: (error: unknown) => {
                 console.error('Error de síntesis de voz:', error);
                 setIsPlaying(false);
                 setError('Error al reproducir el audio');

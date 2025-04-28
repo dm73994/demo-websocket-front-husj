@@ -1,10 +1,10 @@
-import { useEffect, useRef } from 'react';
+import { Box, Typography } from '@mui/material';
+import { useEffect, useRef } from 'react'
 import useSocket, { DestSocket } from '../hooks/useSocket';
 import { useSpeech } from '../hooks/useSpeech';
-import { Box, Typography } from '@mui/material';
 
-const ReceiveMessage = () => {
-    const { messages } = useSocket(DestSocket.CONSULT);
+const CallDelivery = () => {
+    const { messages } = useSocket(DestSocket.DELIVER);
     const { play } = useSpeech();
     const lastProcessedIdRef = useRef<string>("");
 
@@ -12,9 +12,7 @@ const ReceiveMessage = () => {
         if (!messages) return;
 
         const lastMessage = messages;
-        console.log('Nuevo mensaje recibido:', lastMessage);
 
-        // Solo reproducir si es un mensaje nuevo
         play(lastMessage.toUpperCase());
         lastProcessedIdRef.current = lastMessage;
     }, [messages, play]);
@@ -53,6 +51,6 @@ const ReceiveMessage = () => {
             </Box>
         </Box>
     );
-};
+}
 
-export default ReceiveMessage;
+export default CallDelivery
