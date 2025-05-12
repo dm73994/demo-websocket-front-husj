@@ -12,7 +12,7 @@ const Facturacion = () => {
         // await postArrivalAppointmentToCall(`${paciente.patientName} pasar a facturación`)
         const data = JSON.stringify({
             name: paciente.patientName,
-            place: `${paciente.doctor === 'N/a' ? 'agendamiento' : 'facturación'} ${cabin}`,
+            place: `${paciente.doctor === 'N/a' ? `agendamiento ${paciente.speciality}` : `facturación ${cabin}`} `,
         });
         sendMessage(data);
     };

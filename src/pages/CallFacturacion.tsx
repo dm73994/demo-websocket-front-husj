@@ -52,7 +52,8 @@ const CallFacturacion = () => {
 
         audio.onended = () => {
             // Crear el mensaje para reproducir
-            const callMessage = `${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}.`;
+            //const callMessage = `${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}.`;
+            const callMessage = `${nextCall?.name}. ${nextCall?.place}.`;
 
             // Reproducir el mensaje tres veces con pausas
             playMessageWithRepetitions(callMessage, 1, () => {
@@ -61,7 +62,7 @@ const CallFacturacion = () => {
                     setIsPlaying(false);
                     // Procesar el siguiente llamado automáticamente
                     processCallQueue();
-                }, 1000); // Pausa de 1 segundo antes del siguiente llamado
+                }, 500); // Pausa de 1 segundo antes del siguiente llamado
             });
         };
 

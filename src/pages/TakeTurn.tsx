@@ -7,7 +7,7 @@ import {
     postNewArrivalAppointment,
 } from '../services/api/AppointmentsApi';
 import Swal from 'sweetalert2';
-import { Autocomplete, Box, Button, TextField } from '@mui/material';
+import { Autocomplete, Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material';
 import useSocket, { DestSocket } from '../hooks/useSocket';
 
 enum tabs {
@@ -44,7 +44,6 @@ const TakeTurn = () => {
             } else {
                 const data: AppoinmentModel = {
                     ...appointment,
-                    speciality: 'N/a',
                     doctor: 'N/a',
                     appoinmentDate: new Date(),
                     appointmentAssignmentDate: new Date(),
@@ -216,6 +215,31 @@ const TakeTurn = () => {
                                 },
                             }}
                         />
+
+                        <FormControl>
+                            <FormLabel>Tipo de agendamiento</FormLabel>
+                            <RadioGroup sx={{
+                                display: 'flex',
+                                flexDirection: 'row'
+                            }}
+                                onChange={(e) => {
+                                    console.log(e.target.value)
+                                    setAppointment((prev) => {
+                                        if(!prev){
+                                            return null;
+                                        }
+                                        return {
+                                            ...prev,
+                                            speciality: e.target.value
+                                        }
+                                    })
+                                }}
+                            >
+                                <FormControlLabel value={'TOMOGRAFÍA'} control={<Radio />} label={'TOMOGRAFÍA'} />
+                                <FormControlLabel value={'RADIOGRAFÍA'} control={<Radio />} label={'RADIOGRAFÍA'} />
+                                <FormControlLabel value={'RESONANCIAS'} control={<Radio />} label={'RESONANCIAS'} />
+                            </RadioGroup>
+                        </FormControl>
                     </Box>
                 )}
 

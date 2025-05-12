@@ -63,7 +63,7 @@ export const useSpeech = (initialText = '') => {
         window.responsiveVoice.speak(text.toLowerCase(), 'Spanish Female', {
             pitch: 1,
             rate: 1,
-            volume: 1,
+            volume: 1,            
             onstart: () => setIsPlaying(true),
             onend: () => setIsPlaying(false),
             onerror: (error: unknown) => {
