@@ -12,7 +12,11 @@ const Facturacion = () => {
         // await postArrivalAppointmentToCall(`${paciente.patientName} pasar a facturación`)
         const data = JSON.stringify({
             name: paciente.patientName,
-            place: `${paciente.doctor === 'N/a' ? `agendamiento ${paciente.speciality}` : `facturación ${cabin}`} `,
+            place: `${
+                paciente.doctor === 'N/a'
+                    ? `agendamiento ${paciente.speciality}`
+                    : `facturación ${cabin}`
+            } `,
         });
         sendMessage(data);
     };
@@ -74,18 +78,39 @@ const Facturacion = () => {
                                                 gap: 4,
                                             }}
                                         >
-                                            <Button
-                                                variant="contained"
-                                                onClick={() => llamarPaciente(paciente, '1')}
-                                            >
-                                                📢 Llamar puesto 1
-                                            </Button>
-                                            <Button
-                                                variant="contained"
-                                                onClick={() => llamarPaciente(paciente, '2')}
-                                            >
-                                                📢 Llamar puesto 2
-                                            </Button>
+                                            {paciente.doctor !== 'N/a' && (
+                                                <>
+                                                    <Button
+                                                        variant="contained"
+                                                        onClick={() =>
+                                                            llamarPaciente(paciente, '1')
+                                                        }
+                                                    >
+                                                        📢 Llamar puesto 1
+                                                    </Button>
+                                                    <Button
+                                                        variant="contained"
+                                                        onClick={() =>
+                                                            llamarPaciente(paciente, '2')
+                                                        }
+                                                    >
+                                                        📢 Llamar puesto 2
+                                                    </Button>
+                                                </>
+                                            )}
+                                            {paciente.doctor === 'N/a' && (
+                                                <>
+                                                    <Button
+                                                        variant="contained"
+                                                        onClick={() =>
+                                                            llamarPaciente(paciente, '1')
+                                                        }
+                                                    >
+                                                        📢 Llamar {paciente.speciality}
+                                                    </Button>
+                                                </>
+                                            )}
+
                                             {paciente.doctor === 'N/a' && (
                                                 <Button
                                                     variant="outlined"
