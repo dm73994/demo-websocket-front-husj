@@ -7,7 +7,17 @@ import {
     postNewArrivalAppointment,
 } from '../services/api/AppointmentsApi';
 import Swal from 'sweetalert2';
-import { Autocomplete, Box, Button, FormControl, FormControlLabel, FormLabel, Radio, RadioGroup, TextField } from '@mui/material';
+import {
+    Autocomplete,
+    Box,
+    Button,
+    FormControl,
+    FormControlLabel,
+    FormLabel,
+    Radio,
+    RadioGroup,
+    TextField,
+} from '@mui/material';
 import useSocket, { DestSocket } from '../hooks/useSocket';
 
 enum tabs {
@@ -21,6 +31,9 @@ const TakeTurn = () => {
     const [data, setData] = useState<AppoinmentModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentTab, setCurrentTab] = useState<tabs>(tabs.FACTURACION);
+    const [selectedAgenda, setSelectedAgenda] = useState<
+        'TOMOGRAFÍA' | 'RADIOGRAFÍA' | 'RESONANCIA' | 'ECOGRAFÍA'
+    >('TOMOGRAFÍA');
 
     // Cambia esto a null para evitar problemas de controlado/no controlado
     const [appointment, setAppointment] = useState<AppoinmentModel | null>(null);
@@ -48,6 +61,7 @@ const TakeTurn = () => {
                     appoinmentDate: new Date(),
                     appointmentAssignmentDate: new Date(),
                     eps: 'N/a',
+                    speciality: selectedAgenda
                 };
                 setAppointment(data);
                 console.log(data);
@@ -76,11 +90,11 @@ const TakeTurn = () => {
         }
     };
 
-    const handleCallToDeliver = async() => {
-        await postCallToDeliver("-");
-        const message = `${appointment?.patientName.replace('+', ' ')} pasara a recibir resultados`
+    const handleCallToDeliver = async () => {
+        await postCallToDeliver('-');
+        const message = `${appointment?.patientName.replace('+', ' ')} pasara a recibir resultados`;
         await postCallToDeliver(message);
-    }
+    };
 
     const handleTabButtons = (tab: tabs) => {
         setCurrentTab(tab);
@@ -218,26 +232,36 @@ const TakeTurn = () => {
 
                         <FormControl>
                             <FormLabel>Tipo de agendamiento</FormLabel>
-                            <RadioGroup sx={{
-                                display: 'flex',
-                                flexDirection: 'row'
-                            }}
-                                onChange={(e) => {
-                                    console.log(e.target.value)
-                                    setAppointment((prev) => {
-                                        if(!prev){
-                                            return null;
-                                        }
-                                        return {
-                                            ...prev,
-                                            speciality: e.target.value
-                                        }
-                                    })
+                            <RadioGroup
+                                sx={{
+                                    display: 'flex',
+                                    flexDirection: 'row',
                                 }}
+                                onChange={e => {
+                                    setSelectedAgenda(e.target.value);
+                                }}
+                                defaultValue={'TOMOGRAFÍA'}
                             >
-                                <FormControlLabel value={'TOMOGRAFÍA'} control={<Radio />} label={'TOMOGRAFÍA'} />
-                                <FormControlLabel value={'RADIOGRAFÍA'} control={<Radio />} label={'RADIOGRAFÍA'} />
-                                <FormControlLabel value={'RESONANCIAS'} control={<Radio />} label={'RESONANCIAS'} />
+                                <FormControlLabel
+                                    value={'TOMOGRAFÍA'}
+                                    control={<Radio />}
+                                    label={'TOMOGRAFÍA'}
+                                />
+                                <FormControlLabel
+                                    value={'RADIOGRAFÍA'}
+                                    control={<Radio />}
+                                    label={'RADIOGRAFÍA'}
+                                />
+                                <FormControlLabel
+                                    value={'RESONANCIA'}
+                                    control={<Radio />}
+                                    label={'RESONANCIA'}
+                                />
+                                <FormControlLabel
+                                    value={'ECOGRAFÍA'}
+                                    control={<Radio />}
+                                    label={'ECOGRAFÍA'}
+                                />
                             </RadioGroup>
                         </FormControl>
                     </Box>
@@ -311,10 +335,10 @@ const TakeTurn = () => {
                 <Button
                     sx={{ mt: 5 }}
                     onClick={() => {
-                        if(currentTab === tabs.RESULTADOS){
-                            handleCallToDeliver()
-                        }else{
-                            generarTurno()
+                        if (currentTab === tabs.RESULTADOS) {
+                            handleCallToDeliver();
+                        } else {
+                            generarTurno();
                         }
                     }}
                     disabled={!appointment} // Simplificado
