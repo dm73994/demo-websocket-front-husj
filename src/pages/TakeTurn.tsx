@@ -33,7 +33,7 @@ const TakeTurn = () => {
     const [currentTab, setCurrentTab] = useState<tabs>(tabs.FACTURACION);
     const [selectedAgenda, setSelectedAgenda] = useState<
         'TOMOGRAFÍA' | 'RADIOGRAFÍA' | 'RESONANCIA' | 'ECOGRAFÍA'
-    >('TOMOGRAFÍA');
+    >();
 
     // Cambia esto a null para evitar problemas de controlado/no controlado
     const [appointment, setAppointment] = useState<AppoinmentModel | null>(null);
@@ -240,7 +240,6 @@ const TakeTurn = () => {
                                 onChange={e => {
                                     setSelectedAgenda(e.target.value);
                                 }}
-                                defaultValue={'TOMOGRAFÍA'}
                             >
                                 <FormControlLabel
                                     value={'TOMOGRAFÍA'}
