@@ -1,12 +1,16 @@
-import { Box, Button } from '@mui/material';
+import { Box, Button, Stack } from '@mui/material';
 import { AppoinmentModel } from '../data/models/AppointmentModel';
 import useSocket, { DestSocket } from '../hooks/useSocket';
 import { deleteArrivalAppointment, postWaitingAppointment } from '../services/api/AppointmentsApi';
 import Swal from 'sweetalert2';
+import { useState } from 'react';
 
 const Facturacion = () => {
     const { data: pacientes } = useSocket(DestSocket.ARRIVAL);
     const { sendMessage } = useSocket(DestSocket.ARRIVAL_CALL);
+    const [filter, setFilter] = useState<
+        'FACTURACION' | 'TOMOGRAFÍA' | 'RADIOGRAFÍA' | 'RESONANCIA' | 'ECOGRAFÍA'
+    >('FACTURACION');
 
     const llamarPaciente = async (paciente: AppoinmentModel, cabin: string) => {
         // await postArrivalAppointmentToCall(`${paciente.patientName} pasar a facturación`)
@@ -48,6 +52,25 @@ const Facturacion = () => {
     return (
         <div className="tabla-container">
             <h2>📋 Lista de Pacientes - Facturación</h2>
+
+            <Stack direction={'row'} justifyContent={'space-between'}>
+                {['FACTURACION', 'TOMOGRAFÍA', 'RADIOGRAFÍA', 'RESONANCIA', 'ECOGRAFÍA'].map(
+                    text => (
+                        <Button
+                            key={text}
+                            variant={filter === text ? 'contained' : 'outlined'}
+                            onClick={() => {
+                                setFilter(text);
+                            }}
+                            sx={{
+                                backgroundColor: filter === text ? '#1976D2' : '#fff',
+                            }}
+                        >
+                            {text}
+                        </Button>
+                    ),
+                )}
+            </Stack>
             <div className="tabla-wrapper">
                 <table className="tabla-pacientes">
                     <thead>
@@ -62,86 +85,100 @@ const Facturacion = () => {
                     </thead>
                     <tbody>
                         {pacientes.length > 0 ? (
-                            pacientes.map(paciente => (
-                                <tr key={paciente.patientId}>
-                                    <td>
-                                        {new Date(paciente.appoinmentDate).toLocaleTimeString()}
-                                    </td>
-                                    <td>{paciente.patientName}</td>
-                                    <td>{paciente.patientId}</td>
-                                    <td>{paciente.speciality}</td>
-                                    <td>{paciente.doctor}</td>
-                                    <td>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                gap: 4,
-                                            }}
-                                        >
-                                            {paciente.doctor !== 'N/a' && (
-                                                <>
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={() =>
-                                                            llamarPaciente(paciente, '1')
-                                                        }
-                                                    >
-                                                        📢 Llamar puesto 1
-                                                    </Button>
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={() =>
-                                                            llamarPaciente(paciente, '2')
-                                                        }
-                                                    >
-                                                        📢 Llamar puesto 2
-                                                    </Button>
-                                                </>
-                                            )}
-                                            {paciente.doctor === 'N/a' && (
-                                                <>
-                                                    <Button
-                                                        variant="contained"
-                                                        onClick={() =>
-                                                            llamarPaciente(paciente, '1')
-                                                        }
-                                                    >
-                                                        📢 Llamar {paciente.speciality}
-                                                    </Button>
-                                                </>
-                                            )}
+                            pacientes
+                                .filter(p =>
+                                    filter !== 'FACTURACION'
+                                        ? p.speciality.toUpperCase() === filter
+                                        : ![
+                                              'FACTURACION',
+                                              'TOMOGRAFÍA',
+                                              'RADIOGRAFÍA',
+                                              'RESONANCIA',
+                                              'ECOGRAFÍA',
+                                          ].includes(p.speciality.toUpperCase()),
+                                )
+                                .map(paciente => (
+                                    <tr key={paciente.patientId}>
+                                        <td>
+                                            {new Date(paciente.appoinmentDate).toLocaleTimeString()}
+                                        </td>
+                                        <td>{paciente.patientName}</td>
+                                        <td>{paciente.patientId}</td>
+                                        <td>{paciente.speciality}</td>
+                                        <td>{paciente.doctor}</td>
+                                        <td>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    gap: 4,
+                                                }}
+                                            >
+                                                {paciente.doctor !== 'N/a' && (
+                                                    <>
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={() =>
+                                                                llamarPaciente(paciente, '1')
+                                                            }
+                                                        >
+                                                            📢 Llamar puesto 1
+                                                        </Button>
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={() =>
+                                                                llamarPaciente(paciente, '2')
+                                                            }
+                                                        >
+                                                            📢 Llamar puesto 2
+                                                        </Button>
+                                                    </>
+                                                )}
+                                                {paciente.doctor === 'N/a' && (
+                                                    <>
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={() =>
+                                                                llamarPaciente(paciente, '1')
+                                                            }
+                                                        >
+                                                            📢 Llamar {paciente.speciality}
+                                                        </Button>
+                                                    </>
+                                                )}
 
-                                            {paciente.doctor === 'N/a' && (
-                                                <Button
-                                                    variant="outlined"
-                                                    color="error"
-                                                    onClick={() => deletePatient(paciente)}
-                                                    sx={{
-                                                        borderWidth: '2px',
-                                                    }}
-                                                >
-                                                    ❌ ELIMINAR
-                                                </Button>
-                                            )}
-                                            {paciente.doctor !== 'N/a' && (
-                                                <Button
-                                                    variant="outlined"
-                                                    color="success"
-                                                    onClick={() => finalizarFacturacion(paciente)}
-                                                    sx={{
-                                                        borderWidth: '2px',
-                                                    }}
-                                                >
-                                                    <span className="material-symbols-outlined">
-                                                        hourglass_top
-                                                    </span>
-                                                    PASAR A ESPERA
-                                                </Button>
-                                            )}
-                                        </Box>
-                                    </td>
-                                </tr>
-                            ))
+                                                {paciente.doctor === 'N/a' && (
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="error"
+                                                        onClick={() => deletePatient(paciente)}
+                                                        sx={{
+                                                            borderWidth: '2px',
+                                                        }}
+                                                    >
+                                                        ❌ ELIMINAR
+                                                    </Button>
+                                                )}
+                                                {paciente.doctor !== 'N/a' && (
+                                                    <Button
+                                                        variant="outlined"
+                                                        color="success"
+                                                        onClick={() =>
+                                                            finalizarFacturacion(paciente)
+                                                        }
+                                                        sx={{
+                                                            borderWidth: '2px',
+                                                        }}
+                                                    >
+                                                        <span className="material-symbols-outlined">
+                                                            hourglass_top
+                                                        </span>
+                                                        PASAR A ESPERA
+                                                    </Button>
+                                                )}
+                                            </Box>
+                                        </td>
+                                    </tr>
+                                ))
                         ) : (
                             <tr>
                                 <td colSpan={5}>⏳ No hay pacientes en espera...</td>
