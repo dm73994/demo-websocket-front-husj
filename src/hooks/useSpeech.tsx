@@ -100,6 +100,16 @@ export const useSpeech = (initialText = '') => {
         }
     }, [isPlaying, isLoaded]);
 
+    useEffect(() => {
+        if(error){
+            Swal.fire({
+                title: 'Error de sonido',
+                text: error,
+                timer: 2000
+            })
+        }
+    }, [error]);
+
     return {
         text,
         isPlaying,
