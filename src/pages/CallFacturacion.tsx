@@ -23,7 +23,7 @@ const CallFacturacion = () => {
                     // Usar setTimeout para esperar antes de la siguiente repetición
                     setTimeout(() => {
                         playNextRepetition();
-                    }, 2000); // Ajusta este tiempo según la duración promedio de tus mensajes
+                    }, 1000); // Ajusta este tiempo según la duración promedio de tus mensajes
                 } else {
                     // Todas las repeticiones terminadas, ejecutar callback
                     callback();
@@ -48,7 +48,7 @@ const CallFacturacion = () => {
         setCurrentCall(nextCall);
 
         // Reproducir tono antes del llamado
-        const audio = new Audio('src/assets/sounds/tone.wav');
+        const audio = new Audio('src/assets/sounds/tone_2.wav');
 
         audio.onended = () => {
             // Crear el mensaje para reproducir

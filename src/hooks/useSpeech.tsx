@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import Swal from 'sweetalert2';
 
 declare global {
     interface Window {
@@ -68,6 +69,11 @@ export const useSpeech = (initialText = '') => {
             onend: () => setIsPlaying(false),
             onerror: (error: unknown) => {
                 console.error('Error de síntesis de voz:', error);
+                Swal.fire({
+                    title: 'Error de síntesis de voz',
+                    text:`${error}`,
+                    timer: 2000                                    
+            })
                 setIsPlaying(false);
                 setError('Error al reproducir el audio');
             },
