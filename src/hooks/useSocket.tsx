@@ -11,7 +11,7 @@ export enum DestSocket {
     ARRIVAL_CALL = 'arrivalcall',
     DELIVER = 'deliver_results',
 }
-const url = 'ws://192.168.17.236:5000/websocket';
+const url = 'ws://localhost:5000/websocket';
 
 const useSocket = (destSocket: DestSocket) => {
     const [messages, setMessages] = useState<string>();
@@ -83,13 +83,13 @@ const useSocket = (destSocket: DestSocket) => {
 
                 case DestSocket.ARRIVAL_CALL:
                     sub = client.subscribe('/topic/arrivalcall', message => {
-                        const messageContent: WaitingModel = JSON.parse(message.body);
+                        const messageContent: AppoinmentModel = JSON.parse(message.body);
                         console.log('MENSAJE DESDE arrivalcall', messageContent);
 
                         setWaitingList(prev => {
                             const newEntry = {
-                                name: messageContent.name.toUpperCase(),
-                                place: messageContent.place.toUpperCase(),
+                                name: messageContent.patientName.toUpperCase(),
+                                place: messageContent.speciality.toUpperCase(),
                             };
 
                             const updatedList = [newEntry, ...prev];

@@ -11,9 +11,9 @@ export const getAllAppoinments = async(): Promise<AppoinmentModel[]> => {
     }
 }
 
-export const postArrivalAppointment = async(id: string): Promise<AppoinmentModel[]> => {
+export const postArrivalAppointment = async(id: string, priority: boolean): Promise<AppoinmentModel[]> => {
     try {
-        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival/${id}`);
+        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival/${id}?priority=${priority}`);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -31,9 +31,9 @@ export const postNewArrivalAppointment = async(appointment: AppoinmentModel): Pr
     }
 }
 
-export const postArrivalAppointmentToCall = async(message: string): Promise<AppoinmentModel[]> => {
+export const postArrivalAppointmentToCall = async(appointmentId: string, message: string): Promise<AppoinmentModel[]> => {
     try {
-        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival-call`, {message});
+        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival-call/${appointmentId}?message=${encodeURIComponent(message)}`);
         return response.data;
     } catch (error) {
         console.error(error);
@@ -94,6 +94,26 @@ export const getCurrentArrivalList = async() => {
 export const postCallToDeliver = async(message: string) => {
     try {
         const response = await customAxios.post<string[]>(`/appointments/call/result`, message)
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export const postFinishAppointment = async(appointment: AppoinmentModel) => {
+    try {
+        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/finish/${appointment.id}`)
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+export const postUnattendedAppointment = async(appointment: AppoinmentModel) => {
+    try {
+        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/unattended/${appointment.id}`)
         return response.data;
     } catch (error) {
         console.error(error);

@@ -8,4 +8,5 @@ export interface AppoinmentModel{
     patientName: string;
     patientId: string;
     eps: string;
+    priority: boolean;
 }

@@ -11,11 +11,13 @@ import {
     Autocomplete,
     Box,
     Button,
+    Checkbox,
     FormControl,
     FormControlLabel,
     FormLabel,
     Radio,
     RadioGroup,
+    Stack,
     TextField,
 } from '@mui/material';
 import useSocket, { DestSocket } from '../hooks/useSocket';
@@ -28,6 +30,8 @@ enum tabs {
 
 const TakeTurn = () => {
     const { sendMessage } = useSocket(DestSocket.ARRIVAL);
+
+    const [priority, setPriority] = useState<boolean>(false);
     const [data, setData] = useState<AppoinmentModel[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [currentTab, setCurrentTab] = useState<tabs>(tabs.FACTURACION);
@@ -53,7 +57,7 @@ const TakeTurn = () => {
         setLoading(true);
         try {
             if (currentTab === tabs.FACTURACION) {
-                await postArrivalAppointment(appointment.patientId);
+                await postArrivalAppointment(appointment.patientId, priority);
             } else {
                 const data: AppoinmentModel = {
                     ...appointment,
@@ -61,7 +65,8 @@ const TakeTurn = () => {
                     appoinmentDate: new Date(),
                     appointmentAssignmentDate: new Date(),
                     eps: 'N/a',
-                    speciality: selectedAgenda
+                    speciality: selectedAgenda || 'N/a',
+                    priority: priority,
                 };
                 setAppointment(data);
                 console.log(data);
@@ -110,6 +115,7 @@ const TakeTurn = () => {
                 patientName: '',
                 patientId: 'N/a',
                 eps: 'N/a',
+                priority: false,
             });
         }
     };
@@ -174,16 +180,6 @@ const TakeTurn = () => {
                         }}
                     >
                         Agendamiento
-                    </Button>
-                    <Button
-                        onClick={() => handleTabButtons(tabs.RESULTADOS)}
-                        variant="outlined"
-                        sx={{
-                            backgroundColor: currentTab === tabs.RESULTADOS ? '#143064' : '#fff',
-                            color: currentTab === tabs.RESULTADOS ? '#fff' : '#143064',
-                        }}
-                    >
-                        Resultados
                     </Button>
                 </Box>
 
@@ -331,21 +327,40 @@ const TakeTurn = () => {
                     </div>
                 )}
 
-                <Button
-                    sx={{ mt: 5 }}
-                    onClick={() => {
-                        if (currentTab === tabs.RESULTADOS) {
-                            handleCallToDeliver();
-                        } else {
-                            generarTurno();
-                        }
-                    }}
-                    disabled={!appointment} // Simplificado
-                    variant="contained"
-                    color="success"
+                <Stack
+                    direction="column"
+                    justifyContent="center"
+                    alignItems="center"
+                    spacing={2}
+                    sx={{ mt: 3 }}
                 >
-                    Confirmar Llegada
-                </Button>
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={priority}
+                                onChange={e => setPriority(e.target.checked)}
+                                color="primary"
+                            />
+                        }
+                        label="Prioridad"
+                    />
+
+                    <Button
+                        sx={{ mt: 5 }}
+                        onClick={() => {
+                            if (currentTab === tabs.RESULTADOS) {
+                                handleCallToDeliver();
+                            } else {
+                                generarTurno();
+                            }
+                        }}
+                        disabled={!appointment} // Simplificado
+                        variant="contained"
+                        color="success"
+                    >
+                        Confirmar Llegada
+                    </Button>
+                </Stack>
             </div>
             <p style={{ color: '#fff' }}>
                 HUSJ
