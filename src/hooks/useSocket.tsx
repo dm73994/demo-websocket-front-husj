@@ -89,7 +89,7 @@ const useSocket = (destSocket: DestSocket) => {
                         setWaitingList(prev => {
                             const newEntry = {
                                 name: messageContent.patientName.toUpperCase(),
-                                place: messageContent.speciality.toUpperCase(),
+                                place: messageContent.moduleName.toUpperCase(),
                             };
 
                             const updatedList = [newEntry, ...prev];

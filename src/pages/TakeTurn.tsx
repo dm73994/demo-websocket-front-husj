@@ -21,6 +21,7 @@ import {
     TextField,
 } from '@mui/material';
 import useSocket, { DestSocket } from '../hooks/useSocket';
+import { Specialities } from '../data/enums/Specialities';
 
 enum tabs {
     FACTURACION = 1,
@@ -238,24 +239,24 @@ const TakeTurn = () => {
                                 }}
                             >
                                 <FormControlLabel
-                                    value={'TOMOGRAFÍA'}
+                                    value={Specialities.TOMOGRAFIA.valueOf()}
                                     control={<Radio />}
-                                    label={'TOMOGRAFÍA'}
+                                    label={Specialities.TOMOGRAFIA.valueOf()}
                                 />
                                 <FormControlLabel
-                                    value={'RADIOGRAFÍA'}
+                                    value={Specialities.RADIOGRAFIA.valueOf()}
                                     control={<Radio />}
-                                    label={'RADIOGRAFÍA'}
+                                    label={Specialities.RADIOGRAFIA.valueOf()}
                                 />
                                 <FormControlLabel
-                                    value={'RESONANCIA'}
+                                    value={Specialities.RESONANCIA.valueOf()}
                                     control={<Radio />}
-                                    label={'RESONANCIA'}
+                                    label={Specialities.RESONANCIA.valueOf()}
                                 />
                                 <FormControlLabel
-                                    value={'ECOGRAFÍA'}
+                                    value={Specialities.ECOGRAFIA.valueOf()}
                                     control={<Radio />}
-                                    label={'ECOGRAFÍA'}
+                                    label={Specialities.ECOGRAFIA.valueOf()}
                                 />
                             </RadioGroup>
                         </FormControl>

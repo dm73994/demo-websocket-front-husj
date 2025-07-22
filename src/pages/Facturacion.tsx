@@ -38,15 +38,17 @@ import {
     LocalHospital,
     Schedule,
 } from '@mui/icons-material';
+import { Specialities } from '../data/enums/Specialities';
 
 const Facturacion = () => {
     const { data: pacientes } = useSocket(DestSocket.ARRIVAL);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
-    const [filter, setFilter] = useState('FACTURACION');
+    const [filter, setFilter] = useState(Specialities.FACTURACION.valueOf());
 
     const llamarPaciente = async (paciente: AppoinmentModel, cabin: string) => {
+        const calledBy = paciente.doctor === 'N/a' ? paciente.speciality : 'Facturacion ' + cabin;
         const data = JSON.stringify({
             name: paciente.patientName,
             place: `${
@@ -54,10 +56,10 @@ const Facturacion = () => {
                     ? `agendamiento ${paciente.speciality}`
                     : `facturación ${cabin}`
             } `,
-            calledBy: `${paciente.doctor === 'N/a' ? paciente.speciality : 'Facturacion' + cabin}`,
+            calledBy,
         });
         console.log(data);
-        await postArrivalAppointmentToCall(String(paciente.id), data);
+        await postArrivalAppointmentToCall(String(paciente.id), data, calledBy);
     };
 
     const deletePatient = async (paciente: AppoinmentModel) => {
@@ -120,14 +122,18 @@ const Facturacion = () => {
         }
     };
 
-    const filterOptions = ['FACTURACION', 'TOMOGRAFÍA', 'RADIOGRAFÍA', 'RESONANCIA', 'ECOGRAFÍA'];
+    const filterOptions = Object.values(Specialities).map(s => s.valueOf());
 
     const filteredPacientes = pacientes.filter(p =>
-        filter !== 'FACTURACION'
+        filter !== Specialities.FACTURACION.valueOf()
             ? p.speciality.toUpperCase() === filter
-            : !['FACTURACION', 'TOMOGRAFÍA', 'RADIOGRAFÍA', 'RESONANCIA', 'ECOGRAFÍA'].includes(
-                  p.speciality.toUpperCase(),
-              ),
+            : ![
+                  Specialities.FACTURACION.valueOf(),
+                  Specialities.TOMOGRAFIA.valueOf(),
+                  Specialities.RADIOGRAFIA.valueOf(),
+                  Specialities.RESONANCIA.valueOf(),
+                  Specialities.ECOGRAFIA.valueOf(),
+              ].includes(p.speciality.toUpperCase()),
     );
 
     return (
@@ -204,6 +210,18 @@ const Facturacion = () => {
                                                     gap: 1,
                                                 }}
                                             >
+                                                <Schedule sx={{ color: 'action.active' }} />
+                                                Hora Llegada
+                                            </Box>
+                                        </TableCell>
+                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: 1,
+                                                }}
+                                            >
                                                 <Person color="primary" />
                                                 Nombre
                                             </Box>
@@ -253,6 +271,16 @@ const Facturacion = () => {
                                                     <Chip
                                                         label={new Date(
                                                             paciente.appoinmentDate,
+                                                        ).toLocaleTimeString()}
+                                                        color="primary"
+                                                        variant="outlined"
+                                                        size="small"
+                                                    />
+                                                </TableCell>
+                                                <TableCell sx={{ py: 2 }}>
+                                                    <Chip
+                                                        label={new Date(
+                                                            paciente.appointmentAssignmentDate,
                                                         ).toLocaleTimeString()}
                                                         color="primary"
                                                         variant="outlined"

@@ -9,4 +9,5 @@ export interface AppoinmentModel{
     patientId: string;
     eps: string;
     priority: boolean;
+    moduleName: string;
 }

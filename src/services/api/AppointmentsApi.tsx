@@ -31,9 +31,10 @@ export const postNewArrivalAppointment = async(appointment: AppoinmentModel): Pr
     }
 }
 
-export const postArrivalAppointmentToCall = async(appointmentId: string, message: string): Promise<AppoinmentModel[]> => {
+export const postArrivalAppointmentToCall = async(appointmentId: string, message: string, place: string): Promise<AppoinmentModel[]> => {
     try {
-        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival-call/${appointmentId}?message=${encodeURIComponent(message)}`);
+        console.log('Enviando mensaje de llamada a la API:', message, 'para la cita:', appointmentId, 'en el lugar:', place);
+        const response = await customAxios.post<AppoinmentModel[]>(`/appointments/arrival-call/${appointmentId}?message=${encodeURIComponent(message)}&place=${place}`);
         return response.data;
     } catch (error) {
         console.error(error);

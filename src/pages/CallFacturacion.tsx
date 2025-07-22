@@ -45,15 +45,17 @@ const CallFacturacion = () => {
 
         // Obtener el próximo llamado de la cola
         const nextCall = callQueueRef.current.shift();
+        console.log('Procesando llamado:', nextCall);
         setCurrentCall(nextCall);
 
         // Reproducir tono antes del llamado
         const audio = new Audio('src/assets/sounds/tone_2.wav');
 
         audio.onended = () => {
+
             // Crear el mensaje para reproducir
             //const callMessage = `${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}. ${nextCall?.name} pasar a ${nextCall?.place}.`;
-            const callMessage = `${nextCall?.name}. ${nextCall?.place}.`;
+            const callMessage = `${nextCall?.name}. pasar a ${nextCall?.place}.`;
 
             // Reproducir el mensaje tres veces con pausas
             playMessageWithRepetitions(callMessage, 1, () => {
@@ -75,6 +77,7 @@ const CallFacturacion = () => {
 
         // Agregar el nuevo llamado a la cola
         const lastMessage = waitingList[0];
+        console.log('Nuevo llamado recibido:', lastMessage);
 
         // Verificar si ya existe en la cola para evitar duplicados
         // Ya que no hay ID, comparamos por nombre y lugar
