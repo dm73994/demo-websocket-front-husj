@@ -3,8 +3,8 @@ export interface AppoinmentModel{
     id: number;
     speciality: string;
     doctor: string;
-    appoinmentDate: Date;
-    appointmentAssignmentDate: Date;
+    programedDate: Date;
+    arrivalTime: Date;
     patientName: string;
     patientId: string;
     eps: string;

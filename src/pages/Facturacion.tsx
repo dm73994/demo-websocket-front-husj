@@ -3,9 +3,7 @@ import {
     Button,
     Card,
     CardContent,
-    Chip,
     Container,
-    Divider,
     Grid,
     Stack,
     Table,
@@ -21,7 +19,6 @@ import {
 import { AppoinmentModel } from '../data/models/AppointmentModel';
 import useSocket, { DestSocket } from '../hooks/useSocket';
 import {
-    deleteArrivalAppointment,
     postArrivalAppointmentToCall,
     postFinishAppointment,
     postUnattendedAppointment,
@@ -29,19 +26,12 @@ import {
 } from '../services/api/AppointmentsApi';
 import Swal from 'sweetalert2';
 import { useState } from 'react';
-import {
-    Campaign,
-    Delete,
-    HourglassTop,
-    Person,
-    Badge,
-    LocalHospital,
-    Schedule,
-} from '@mui/icons-material';
+import { HourglassTop } from '@mui/icons-material';
 import { Specialities } from '../data/enums/Specialities';
 
 const Facturacion = () => {
     const { data: pacientes } = useSocket(DestSocket.ARRIVAL);
+    console.log('Pacientes en Facturacion:', pacientes);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('md'));
 
@@ -60,18 +50,6 @@ const Facturacion = () => {
         });
         console.log(data);
         await postArrivalAppointmentToCall(String(paciente.id), data, calledBy);
-    };
-
-    const deletePatient = async (paciente: AppoinmentModel) => {
-        try {
-            await deleteArrivalAppointment(paciente);
-        } catch (error) {
-            console.error(error);
-            Swal.fire({
-                title: 'Ha ocurrido un error',
-                text: 'Por favor intente nuevamente',
-            });
-        }
     };
 
     const finalizarFacturacion = async (paciente: AppoinmentModel) => {
@@ -124,36 +102,60 @@ const Facturacion = () => {
 
     const filterOptions = Object.values(Specialities).map(s => s.valueOf());
 
-    const filteredPacientes = pacientes.filter(p =>
-        filter !== Specialities.FACTURACION.valueOf()
-            ? p.speciality.toUpperCase() === filter
-            : ![
-                  Specialities.FACTURACION.valueOf(),
-                  Specialities.TOMOGRAFIA.valueOf(),
-                  Specialities.RADIOGRAFIA.valueOf(),
-                  Specialities.RESONANCIA.valueOf(),
-                  Specialities.ECOGRAFIA.valueOf(),
-              ].includes(p.speciality.toUpperCase()),
-    );
+    const filteredPacientes = pacientes
+        .filter(p =>
+            filter !== Specialities.FACTURACION.valueOf()
+                ? p.speciality.toUpperCase() === filter
+                : ![
+                      Specialities.FACTURACION.valueOf(),
+                      Specialities.TOMOGRAFIA.valueOf(),
+                      Specialities.RADIOGRAFIA.valueOf(),
+                      Specialities.RESONANCIA.valueOf(),
+                      Specialities.ECOGRAFIA.valueOf(),
+                  ].includes(p.speciality.toUpperCase()),
+        )
+        .sort((a, b) => {
+            return a.priority === b.priority ? 0 : a.priority ? -1 : 1;
+        });
 
     return (
         <Box
             sx={{
                 minHeight: '100vh',
-                py: 3,
+                py: { xs: 2, md: 4 },
+                px: { xs: 1, md: 3 },
+                bgcolor: 'linear-gradient(135deg, #f9fafc, #e4ecf7)',
             }}
         >
-            <Container maxWidth="xl">
-                {/* Filtros */}
-                <Card elevation={1} sx={{ mb: 3 }}>
+            <Container maxWidth="lg">
+                <Card
+                    elevation={2}
+                    sx={{
+                        mb: 4,
+                        borderRadius: 3,
+                        boxShadow: '0 3px 12px rgba(0,0,0,0.05)',
+                    }}
+                >
                     <CardContent>
-                        <Typography variant="h6" gutterBottom sx={{ mb: 2, fontWeight: 600 }}>
+                        <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
                             Filtrar por especialidad
                         </Typography>
                         <Stack
-                            direction={isMobile ? 'column' : 'row'}
+                            direction="row"
                             spacing={1}
-                            sx={{ flexWrap: 'wrap' }}
+                            sx={{
+                                flexWrap: 'wrap',
+                                overflowX: 'auto',
+                                pb: 1,
+                                scrollbarWidth: 'thin',
+                                '&::-webkit-scrollbar': {
+                                    height: 6,
+                                },
+                                '&::-webkit-scrollbar-thumb': {
+                                    backgroundColor: '#ccc',
+                                    borderRadius: 2,
+                                },
+                            }}
                         >
                             {filterOptions.map(option => (
                                 <Button
@@ -166,13 +168,12 @@ const Facturacion = () => {
                                         borderRadius: 2,
                                         textTransform: 'capitalize',
                                         fontWeight: 500,
-                                        backgroundColor:
-                                            filter === option ? 'primary.main' : 'transparent',
-                                        color: filter === option ? 'white' : 'text.primary',
+                                        color: filter === option ? '#fff' : 'text.primary',
+                                        backgroundColor: filter === option ? '#3f51b5' : undefined,
                                         borderColor: '#ccc',
                                         '&:hover': {
                                             backgroundColor:
-                                                filter === option ? 'primary.dark' : '#f0f0f0',
+                                                filter === option ? '#303f9f' : '#f0f0f0',
                                         },
                                     }}
                                 >
@@ -183,72 +184,40 @@ const Facturacion = () => {
                     </CardContent>
                 </Card>
 
-                {/* Tabla de pacientes */}
-                <Card elevation={1}>
+                <Card elevation={2} sx={{ borderRadius: 3, overflow: 'hidden' }}>
                     <CardContent sx={{ p: 0 }}>
-                        <TableContainer>
-                            <Table>
+                        <TableContainer
+                            sx={{
+                                maxHeight: '65vh',
+                                overflow: 'auto',
+                            }}
+                        >
+                            <Table stickyHeader>
                                 <TableHead>
-                                    <TableRow sx={{ backgroundColor: '#f4f6f8' }}>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            <Box
+                                    <TableRow sx={{ backgroundColor: '#eef1f5' }}>
+                                        {[
+                                            'Hora cita',
+                                            'Hora Llegada',
+                                            'Nombre',
+                                            'Cédula',
+                                            'Procedimiento',
+                                            'Encargado',
+                                            'Acciones',
+                                        ].map((label, idx) => (
+                                            <TableCell
+                                                key={idx}
                                                 sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
+                                                    fontWeight: 'bold',
+                                                    backgroundColor: '#3f51b5',
+                                                    color: '#fff',
+                                                    position: 'sticky',
+                                                    top: 0,
+                                                    zIndex: 1,
                                                 }}
                                             >
-                                                <Schedule sx={{ color: 'action.active' }} />
-                                                Hora cita
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                }}
-                                            >
-                                                <Schedule sx={{ color: 'action.active' }} />
-                                                Hora Llegada
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                }}
-                                            >
-                                                <Person color="primary" />
-                                                Nombre
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            <Box
-                                                sx={{
-                                                    display: 'flex',
-                                                    alignItems: 'center',
-                                                    gap: 1,
-                                                }}
-                                            >
-                                                <Badge color="primary" />
-                                                Cédula
-                                            </Box>
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            Procedimiento
-                                        </TableCell>
-                                        <TableCell sx={{ fontWeight: 'bold', py: 2 }}>
-                                            Encargado
-                                        </TableCell>
-                                        <TableCell
-                                            sx={{ fontWeight: 'bold', py: 2, textAlign: 'center' }}
-                                        >
-                                            Acciones
-                                        </TableCell>
+                                                {label}
+                                            </TableCell>
+                                        ))}
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
@@ -257,199 +226,137 @@ const Facturacion = () => {
                                             <TableRow
                                                 key={paciente.patientId}
                                                 sx={{
-                                                    '&:hover': { backgroundColor: '#f5f7fa' },
                                                     backgroundColor: paciente.priority
-                                                        ? index % 2 === 0
-                                                            ? '#f8d6d6ff'
-                                                            : '#f8d6d6ff'
+                                                        ? 'rgba(150, 56, 56, 0.2)'
                                                         : index % 2 === 0
-                                                        ? '#fafafa'
-                                                        : 'white',
+                                                        ? '#fafbfd'
+                                                        : '#ffffff',
+                                                    '&:hover': {
+                                                        backgroundColor: '#f1f5fb',
+                                                    },
                                                 }}
                                             >
-                                                <TableCell sx={{ py: 2 }}>
-                                                    <Chip
-                                                        label={new Date(
-                                                            paciente.appoinmentDate,
-                                                        ).toLocaleTimeString()}
-                                                        color="primary"
-                                                        variant="outlined"
-                                                        size="small"
-                                                    />
+                                                <TableCell>
+                                                    {paciente.programedDate
+                                                        ? new Date(
+                                                              paciente.programedDate,
+                                                          ).toLocaleTimeString()
+                                                        : 'N/A'}
                                                 </TableCell>
-                                                <TableCell sx={{ py: 2 }}>
-                                                    <Chip
-                                                        label={new Date(
-                                                            paciente.appointmentAssignmentDate,
-                                                        ).toLocaleTimeString()}
-                                                        color="primary"
-                                                        variant="outlined"
-                                                        size="small"
-                                                    />
+                                                <TableCell>
+                                                    {new Date(
+                                                        paciente.arrivalTime,
+                                                    ).toLocaleTimeString()}
                                                 </TableCell>
-                                                <TableCell sx={{ py: 2, fontWeight: 500 }}>
-                                                    {paciente.patientName}
-                                                </TableCell>
-                                                <TableCell sx={{ py: 2 }}>
-                                                    {paciente.patientId}
-                                                </TableCell>
-                                                <TableCell sx={{ py: 2 }}>
-                                                    <Chip
-                                                        label={paciente.speciality}
-                                                        color="secondary"
-                                                        size="small"
-                                                    />
-                                                </TableCell>
-                                                <TableCell sx={{ py: 2 }}>
-                                                    {paciente.doctor}
-                                                </TableCell>
-                                                <TableCell sx={{ py: 2 }}>
+                                                <TableCell>{paciente.patientName}</TableCell>
+                                                <TableCell>{paciente.patientId}</TableCell>
+                                                <TableCell>{paciente.speciality}</TableCell>
+                                                <TableCell>{paciente.doctor}</TableCell>
+                                                <TableCell>
                                                     <Box
                                                         sx={{
                                                             display: 'flex',
                                                             gap: 1,
                                                             flexWrap: 'wrap',
-                                                            justifyContent: 'center',
+                                                            justifyContent: isMobile
+                                                                ? 'center'
+                                                                : 'flex-start',
+                                                            flexDirection: isMobile
+                                                                ? 'column'
+                                                                : 'row',
                                                         }}
                                                     >
-                                                        {paciente.doctor !== 'N/a' ? (
-                                                            <>
+                                                        {(paciente.doctor !== 'N/a'
+                                                            ? [
+                                                                  {
+                                                                      label: 'Puesto 1',
+                                                                      color: 'success',
+                                                                      action: () =>
+                                                                          llamarPaciente(
+                                                                              paciente,
+                                                                              '1',
+                                                                          ),
+                                                                  },
+                                                                  {
+                                                                      label: 'Puesto 2',
+                                                                      color: 'info',
+                                                                      action: () =>
+                                                                          llamarPaciente(
+                                                                              paciente,
+                                                                              '2',
+                                                                          ),
+                                                                  },
+                                                                  {
+                                                                      label: 'Pasar a espera',
+                                                                      outline: true,
+                                                                      color: 'success',
+                                                                      action: () =>
+                                                                          finalizarFacturacion(
+                                                                              paciente,
+                                                                          ),
+                                                                  },
+                                                                  {
+                                                                      label: 'No se presentó',
+                                                                      outline: true,
+                                                                      color: 'error',
+                                                                      action: () =>
+                                                                          pacienteNoAtendido(
+                                                                              paciente,
+                                                                          ),
+                                                                  },
+                                                              ]
+                                                            : [
+                                                                  {
+                                                                      label: 'Llamar',
+                                                                      color: 'primary',
+                                                                      action: () =>
+                                                                          llamarPaciente(
+                                                                              paciente,
+                                                                              paciente.speciality,
+                                                                          ),
+                                                                  },
+                                                                  {
+                                                                      label: 'Finalizar',
+                                                                      color: 'success',
+                                                                      action: () =>
+                                                                          finalizarAgendamiento(
+                                                                              paciente,
+                                                                          ),
+                                                                  },
+                                                                  {
+                                                                      label: 'No se presentó',
+                                                                      outline: true,
+                                                                      color: 'error',
+                                                                      action: () =>
+                                                                          pacienteNoAtendido(
+                                                                              paciente,
+                                                                          ),
+                                                                  },
+                                                              ]
+                                                        ).map(
+                                                            (
+                                                                { label, color, action, outline },
+                                                                i,
+                                                            ) => (
                                                                 <Button
-                                                                    variant="contained"
-                                                                    size="small"
-                                                                    startIcon={<Campaign />}
-                                                                    onClick={() =>
-                                                                        llamarPaciente(
-                                                                            paciente,
-                                                                            '1',
-                                                                        )
+                                                                    key={i}
+                                                                    variant={
+                                                                        outline
+                                                                            ? 'outlined'
+                                                                            : 'contained'
                                                                     }
+                                                                    size="small"
+                                                                    color={color}
+                                                                    onClick={action}
                                                                     sx={{
-                                                                        background:
-                                                                            'linear-gradient(45deg, #4CAF50, #45a049)',
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
+                                                                        minWidth: 100,
+                                                                        px: 1.5,
+                                                                        py: 0.8,
                                                                     }}
                                                                 >
-                                                                    Puesto 1
+                                                                    {label}
                                                                 </Button>
-                                                                <Button
-                                                                    variant="contained"
-                                                                    size="small"
-                                                                    startIcon={<Campaign />}
-                                                                    onClick={() =>
-                                                                        llamarPaciente(
-                                                                            paciente,
-                                                                            '2',
-                                                                        )
-                                                                    }
-                                                                    sx={{
-                                                                        background:
-                                                                            'linear-gradient(45deg, #2196F3, #1976D2)',
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    Puesto 2
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    color="success"
-                                                                    startIcon={<HourglassTop />}
-                                                                    onClick={() =>
-                                                                        finalizarFacturacion(
-                                                                            paciente,
-                                                                        )
-                                                                    }
-                                                                    sx={{
-                                                                        borderWidth: 2,
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    Pasar a espera
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    color="error"
-                                                                    startIcon={<Delete />}
-                                                                    onClick={() =>
-                                                                        pacienteNoAtendido(paciente)
-                                                                    }
-                                                                    sx={{
-                                                                        borderWidth: 2,
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    No se presentó
-                                                                </Button>
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Button
-                                                                    variant="contained"
-                                                                    size="small"
-                                                                    startIcon={<Campaign />}
-                                                                    onClick={() =>
-                                                                        llamarPaciente(
-                                                                            paciente,
-                                                                            paciente.speciality,
-                                                                        )
-                                                                    }
-                                                                    sx={{
-                                                                        background:
-                                                                            'linear-gradient(45deg, #667eea, #764ba2)',
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    Llamar
-                                                                </Button>
-                                                                <Button
-                                                                    variant="contained"
-                                                                    size="small"
-                                                                    startIcon={<Campaign />}
-                                                                    onClick={() =>
-                                                                        finalizarAgendamiento(
-                                                                            paciente,
-                                                                        )
-                                                                    }
-                                                                    sx={{
-                                                                        background:
-                                                                            'linear-gradient(45deg, #096916ff, #469e63ff)',
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    Finalizar
-                                                                </Button>
-                                                                <Button
-                                                                    variant="outlined"
-                                                                    size="small"
-                                                                    color="error"
-                                                                    startIcon={<Delete />}
-                                                                    onClick={() =>
-                                                                        pacienteNoAtendido(paciente)
-                                                                    }
-                                                                    sx={{
-                                                                        borderWidth: 2,
-                                                                        minWidth: isMobile
-                                                                            ? '100%'
-                                                                            : 'auto',
-                                                                    }}
-                                                                >
-                                                                    No se presentó
-                                                                </Button>
-                                                            </>
+                                                            ),
                                                         )}
                                                     </Box>
                                                 </TableCell>
@@ -458,7 +365,7 @@ const Facturacion = () => {
                                     ) : (
                                         <TableRow>
                                             <TableCell
-                                                colSpan={6}
+                                                colSpan={7}
                                                 sx={{ textAlign: 'center', py: 4 }}
                                             >
                                                 <Box
@@ -485,25 +392,24 @@ const Facturacion = () => {
                     </CardContent>
                 </Card>
 
-                {/* Footer */}
                 <Card
                     elevation={0}
                     sx={{
                         mt: 4,
-                        backgroundColor: '#f4f4f4',
-                        color: 'text.primary',
-                        borderTop: '1px solid #e0e0e0',
+                        bgcolor: '#f7f7f7',
+                        borderTop: '1px solid #ddd',
+                        borderRadius: 2,
                     }}
                 >
-                    <CardContent sx={{ py: 3 }}>
-                        <Grid container spacing={3}>
+                    <CardContent>
+                        <Grid container spacing={2} justifyContent="space-between">
                             <Grid
                                 size={{
-                                    md: 6,
                                     xs: 12,
+                                    md: 6,
                                 }}
                             >
-                                <Typography variant="h6" fontWeight="bold">
+                                <Typography variant="subtitle1" fontWeight="bold">
                                     Hospital Universitario San José
                                 </Typography>
                                 <Typography variant="body2" color="text.secondary">
@@ -512,8 +418,8 @@ const Facturacion = () => {
                             </Grid>
                             <Grid
                                 size={{
-                                    md: 6,
                                     xs: 12,
+                                    md: 6,
                                 }}
                             >
                                 <Box sx={{ textAlign: isMobile ? 'left' : 'right' }}>
